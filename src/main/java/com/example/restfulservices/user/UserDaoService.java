@@ -52,6 +52,11 @@ public class UserDaoService {
         return user;
     }
 
+    /**
+     *  user 삭제
+     * @param id
+     * @return
+     */
     public User deleteById(int id){
         Iterator<User> it = users.iterator();
         while(it.hasNext()){

@@ -2,6 +2,7 @@ package com.example.restfulservices.user;
 
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -41,7 +42,7 @@ public class UserController {
      * @param user
      */
     @PostMapping("/users")
-    public void createUser(@RequestBody User user){
+    public void createUser(@Valid @RequestBody User user){
         User savedUser = service.save(user);
     }
 
