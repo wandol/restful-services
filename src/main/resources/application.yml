@@ -2,8 +2,16 @@ server:
   port: 8081
 logging:
   level:
-    org.springframework: DEBUG
+    org.springframework: INFO
 
 spring:
   messages:
     basename: messages
+
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+

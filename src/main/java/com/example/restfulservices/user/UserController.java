@@ -1,9 +1,18 @@
 package com.example.restfulservices.user;
 
+import com.fasterxml.jackson.databind.ser.FilterProvider;
+import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
+import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.http.converter.json.MappingJacksonValue;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 public class UserController {
@@ -29,12 +38,29 @@ public class UserController {
      * @return
      */
     @GetMapping("/users/{id}")
-    public User retrieveUser(@PathVariable int id){
+    public MappingJacksonValue retrieveUser(@PathVariable int id){
         User user = service.findOne(id);
         if(user == null){
             throw new UserNotFoundException(String.format("ID[%s] not found", id));
         }
-        return user;
+
+        // HATEOAS
+        EntityModel<User> model = new EntityModel<>(user);
+        WebMvcLinkBuilder linkTo = linkTo(methodOn(this.getClass()).retrieveAllUsers());
+        model.add(linkTo.withRel("all-users"));
+
+        // filter
+        SimpleBeanPropertyFilter simpleBeanPropertyFilter = SimpleBeanPropertyFilter
+                .filterOutAllExcept("id","name","joinDate","ssn");
+
+        FilterProvider filterProvider = new SimpleFilterProvider().addFilter("UserInfo",simpleBeanPropertyFilter);
+
+        MappingJacksonValue mappingJacksonValue = new MappingJacksonValue(model);
+        mappingJacksonValue.setFilters(filterProvider);
+
+
+
+        return mappingJacksonValue;
     }
 
     /**
